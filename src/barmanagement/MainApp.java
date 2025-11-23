@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * MAINAPP - Main entry point with role menus
- */
 public class MainApp {
+
     private static Scanner scanner = new Scanner(System.in);
     private static Bar bar;
     private static List<Client> clients = new ArrayList<>();
@@ -23,11 +21,13 @@ public class MainApp {
     }
 
     private static void setupBar() throws Exception {
+
         Patron patron = new Patron("Naomi", "Boss", 5000, "Welcome!", "Chez Naomi");
         Barman barman = new Barman("Amine", "Chief", 500, "Cheers!");
+
         bar = new Bar("Chez Naomi", patron, barman);
 
-        // Default servers in bar
+        // Default servers
         bar.addServer(new Server("Alice", "Ali", 200, "Yes!", Gender.FEMALE, 8));
         bar.addServer(new Server("John", "Strong", 200, "Ready!", Gender.MALE, 6));
 
@@ -38,10 +38,14 @@ public class MainApp {
 
         supplier = new Supplier("Pierre", "Pete", 0.0, "Ready!");
 
-        // LOAD CLIENTS FROM FILE
+        // Load clients from file
         clients = ClientMenu.loadClientsFromFile();
 
-        
+        // Add loaded clients into the bar so Belote + Tournament can see them
+        for (Client c : clients) {
+            bar.getClients().add(c); 
+        }
+
         System.out.println(" Bar setup complete!\n");
     }
 
@@ -63,18 +67,8 @@ public class MainApp {
 
             switch (choice) {
                 case 1 -> managePub();
-
-                case 2 -> {
-                    // Belote Game now uses bar actors (clients + servers)
-                    BeloteGameMenu gameMenu = new BeloteGameMenu(bar);
-                    gameMenu.showMenu();
-                }
-
-                case 3 -> {
-                    TournamentMenu tourneyMenu = new TournamentMenu(bar, clients);
-                    tourneyMenu.showMenu();
-                }
-
+                case 2 -> new BeloteGameMenu(bar).showMenu();
+                case 3 -> new TournamentMenu(bar, clients).showMenu();
                 case 4 -> {
                     System.out.println("\nThanks for playing! Goodbye.");
                     running = false;
