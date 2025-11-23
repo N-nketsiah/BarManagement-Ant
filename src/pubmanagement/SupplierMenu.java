@@ -72,14 +72,14 @@ public class SupplierMenu {
             int quantity = getIntInput(1, 1000);
 
             bar.addBeverages(chosen, quantity);
-            System.out.println("✓ Supplied " + quantity + " units of " + chosen.getName());
+            System.out.println(" Supplied " + quantity + " units of " + chosen.getName());
         }
     }
 
     private void getPaid() {
         try {
             supplier.getPaid(bar.getPatron());
-            System.out.println("✓ Payment received!");
+            System.out.println(" Payment received!");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

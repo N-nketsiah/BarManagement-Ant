@@ -1,14 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package pubmanagement;
-
-/**
- *
- * @author NAOMI
- */
-
 
 import java.util.List;
 import utils.Gender;
@@ -66,7 +56,7 @@ public class ServerMenu {
 
             chosenServer = new Server(firstName, nickname, wallet, "Ready!", Gender.MALE, 8);
             servers.add(chosenServer);
-            System.out.println("✓ Custom server added!");
+            System.out.println(" Custom server added!");
         }
 
         if (chosenServer != null) {
@@ -74,49 +64,55 @@ public class ServerMenu {
         }
     }
 
-   private void serverActions(Server server) {
-    boolean inMenu = true;
+    private void serverActions(Server server) {
+        boolean inMenu = true;
 
-    while (inMenu) {
-        System.out.println("=====================================");
-        System.out.println("            SERVER MENU              ");
-        System.out.println("=====================================");
-        System.out.println("1. View Profile");
-        System.out.println("2. Take an order from a client");
-        System.out.println("3. Serve a client");
-        System.out.println("4. Quit to main menu");
-        System.out.print("Choose: ");
+        while (inMenu) {
+            System.out.println("=====================================");
+            System.out.println("            SERVER MENU              ");
+            System.out.println("=====================================");
+            System.out.println("1. View Profile");
+            System.out.println("2. Take an order from a client");
+            System.out.println("3. Serve a client");
+            System.out.println("4. View Bar Tables");     // <-- NEW OPTION
+            System.out.println("5. Quit to main menu");
+            System.out.print("Choose: ");
 
-        int action = getIntInput(1, 4);
+            int action = getIntInput(1, 5);
 
-        switch (action) {
-            case 1 -> {
-                System.out.println("\nServer Profile:");
-                System.out.println("Name: " + server.getFirstName());
-                System.out.println("Nickname: " + server.getNickname());
-                System.out.println("Wallet: " + server.getWallet());
-            }
-            case 2 -> {
-                Client client = selectClient();
-                if (client != null) {
-                    server.receiveOrder(client);
-                    System.out.println("✓ Order taken!");
+            switch (action) {
+                case 1 -> {
+                    System.out.println("\nServer Profile:");
+                    System.out.println("Name: " + server.getFirstName());
+                    System.out.println("Nickname: " + server.getNickname());
+                    System.out.println("Wallet: " + server.getWallet());
                 }
-            }
-            case 3 -> {
-                Client client = selectClient();
-                if (client != null) {
-                    Beverage drink = selectBeverage();
-                    if (drink != null) {
-                        server.serve(client, drink);
-                        System.out.println("✓ Served!");
+                case 2 -> {
+                    Client client = selectClient();
+                    if (client != null) {
+                        server.receiveOrder(client);
+                        System.out.println(" Order taken!");
                     }
                 }
+                case 3 -> {
+                    Client client = selectClient();
+                    if (client != null) {
+                        Beverage drink = selectBeverage();
+                        if (drink != null) {
+                            server.serve(client, drink);
+                            System.out.println(" Served!");
+                        }
+                    }
+                }
+                case 4 -> {
+                    System.out.println("\n--- BAR TABLE STATUS ---");
+                    bar.showTables();   // <-- NOW TABLES APPEAR
+                }
+                case 5 -> inMenu = false;
             }
-            case 4 -> inMenu = false;
         }
     }
-}
+
     private Client selectClient() {
         if (clients.isEmpty()) {
             System.out.println("No clients available.");
@@ -155,8 +151,7 @@ public class ServerMenu {
         try {
             int input = Integer.parseInt(scanner.nextLine());
             if (input >= min && input <= max) return input;
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
         System.out.print("Invalid! Try again: ");
         return getIntInput(min, max);
     }

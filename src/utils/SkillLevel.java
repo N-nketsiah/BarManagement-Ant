@@ -1,10 +1,9 @@
 
 package utils;
 
-/**
- *
- * @author NAOMI
- */
 public enum SkillLevel {
-    
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED,
+    EXPERT;
 }

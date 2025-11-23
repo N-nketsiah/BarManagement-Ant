@@ -1,94 +1,41 @@
-
 package game;
 
-/**
- *
- * @author NAOMI
- * /
-
-
-
-/**
- * GAMEPLAYER CLASS - Wraps a Client to play Belote
- */
-import pubmanagement.Client;
 import Belote.Hand;
 
-public class GamePlayer implements Playable {
-    private Client client;
+/**
+ * GAMEPLAYER CLASS - Used by simplified Belote engine
+ * This version matches the new Hand.java (no name argument)
+ */
+public class GamePlayer {
+
+    private String name;
     private Hand hand;
-    private int score;
-    private int roundsWon;
-    private boolean isPlaying;
+    private int tricksWon;
 
-    /**
-     * Constructor
-     * @param client 
-     */
-    public GamePlayer(Client client) {
-        this.client = client;
-        this.hand = new Hand(client.getFirstName());
-        this.score = 0;
-        this.roundsWon = 0;
-        this.isPlaying = false;
+    public GamePlayer(String name) {
+        this.name = name;
+        this.hand = new Hand();   // <-- FIXED
+        this.tricksWon = 0;
     }
 
-    @Override
-    public void playGame() {
-        isPlaying = true;
-    }
-
-    @Override
-    public int getScore() {
-        return score;
-    }
-
-    @Override
-    public boolean canPlay() {
-        return isPlaying && !hand.isEmpty();
-    }
-
-    @Override
-    public String getPlayerName() {
-        return client.getFirstName();
-    }
-
-    @Override
-    public void winRound() {
-        roundsWon++;
-        score += 10;
-    }
-
-    @Override
-    public void loseRound() {
-        // no points lost
-    }
-
-    public Client getClient() {
-        return client;
+    public String getName() {
+        return name;
     }
 
     public Hand getHand() {
         return hand;
     }
 
-    public int getRoundsWon() {
-        return roundsWon;
+    public void addTrick() {
+        tricksWon++;
     }
 
-    public void addScore(int points) {
-        score += points;
-    }
-
-    public void resetGame() {
-        score = 0;
-        roundsWon = 0;
-        hand.clear();
-        isPlaying = false;
+    public int getTricks() {
+        return tricksWon;
     }
 
     @Override
     public String toString() {
-        return getPlayerName() + " [Score: " + score + ", Rounds: " + roundsWon + "]";
+        return name + " (Tricks won: " + tricksWon + ")";
     }
 }

@@ -82,7 +82,7 @@ public class Beverage {
     
     @Override
     public String toString() {
-        return name + " (€" + salePrice + ")";
+        return name + " ($" + salePrice + ")";
     }
 }
 

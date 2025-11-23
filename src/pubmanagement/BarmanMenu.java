@@ -60,14 +60,14 @@ public class BarmanMenu {
             Beverage beverage = selectBeverage();
             if (beverage != null) {
                 bar.serveDrink(client, beverage);
-                System.out.println("✓ Served " + beverage.getName() + " to " + client.getFirstName());
+                System.out.println(" Served " + beverage.getName() + " to " + client.getFirstName());
             }
         }
     }
 
     private void announceRound() {
         bar.offerGeneralRound();
-        System.out.println("✓ General round announced!");
+        System.out.println("General round announced!");
     }
 
    private void manageStock() {

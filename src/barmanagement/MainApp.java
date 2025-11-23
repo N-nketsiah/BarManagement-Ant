@@ -1,12 +1,8 @@
-
 package barmanagement;
 
-/**
- *
- * @author NAOMI
- */
 import pubmanagement.*;
 import game.BeloteGameMenu;
+import tournament.TournamentMenu;
 import utils.Gender;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,24 +23,27 @@ public class MainApp {
     }
 
     private static void setupBar() throws Exception {
-      Patron patron = new Patron("Marie", "Boss", 5000, "Welcome!", "Chez Marie");
-      Barman barman = new Barman("Jack", "Chief", 500, "Cheers!");
-      bar = new Bar("Chez Marie", patron, barman);
+        Patron patron = new Patron("Naomi", "Boss", 5000, "Welcome!", "Chez Naomi");
+        Barman barman = new Barman("Amine", "Chief", 500, "Cheers!");
+        bar = new Bar("Chez Naomi", patron, barman);
 
-      bar.addServer(new Server("Alice", "Ali", 200, "Yes!", Gender.FEMALE, 8));
-      bar.addServer(new Server("John", "Strong", 200, "Ready!", Gender.MALE, 6));
+        // Default servers in bar
+        bar.addServer(new Server("Alice", "Ali", 200, "Yes!", Gender.FEMALE, 8));
+        bar.addServer(new Server("John", "Strong", 200, "Ready!", Gender.MALE, 6));
 
-      bar.addBeverages(new Beverage("Beer", 5.0, 2.0, true, 2), 50);
-      bar.addBeverages(new Beverage("Wine", 6.0, 2.5, true, 3), 30);
-      bar.addBeverages(new Beverage("Water", 1.0, 0.3, false, 0), 100);
+        // Default stock
+        bar.addBeverages(new Beverage("Beer", 5.0, 2.0, true, 2), 50);
+        bar.addBeverages(new Beverage("Wine", 6.0, 2.5, true, 3), 30);
+        bar.addBeverages(new Beverage("Water", 1.0, 0.3, false, 0), 100);
 
-      supplier = new Supplier("Pierre", "Pete", 0.0, "Ready!");
+        supplier = new Supplier("Pierre", "Pete", 0.0, "Ready!");
 
-    // LOAD CLIENTS FROM FILE
-      clients = ClientMenu.loadClientsFromFile();
+        // LOAD CLIENTS FROM FILE
+        clients = ClientMenu.loadClientsFromFile();
 
-      System.out.println("✓ Bar setup complete!\n");
-}
+        
+        System.out.println(" Bar setup complete!\n");
+    }
 
     private static void mainMenu() throws Exception {
         boolean running = true;
@@ -64,11 +63,18 @@ public class MainApp {
 
             switch (choice) {
                 case 1 -> managePub();
+
                 case 2 -> {
-                    BeloteGameMenu gameMenu = new BeloteGameMenu();
+                    // Belote Game now uses bar actors (clients + servers)
+                    BeloteGameMenu gameMenu = new BeloteGameMenu(bar);
                     gameMenu.showMenu();
                 }
-                case 3 -> System.out.println("Tournament feature coming soon!");
+
+                case 3 -> {
+                    TournamentMenu tourneyMenu = new TournamentMenu(bar, clients);
+                    tourneyMenu.showMenu();
+                }
+
                 case 4 -> {
                     System.out.println("\nThanks for playing! Goodbye.");
                     running = false;
@@ -90,26 +96,11 @@ public class MainApp {
         int role = getIntInput(1, 6);
 
         switch (role) {
-            case 1 -> {
-                PatronMenu menu = new PatronMenu(bar, clients);
-                menu.showMenu();
-            }
-            case 2 -> {
-                BarmanMenu menu = new BarmanMenu(bar, clients);
-                menu.showMenu();
-            }
-            case 3 -> {
-                ServerMenu menu = new ServerMenu(bar, clients);
-                menu.showMenu();
-            }
-            case 4 -> {
-                SupplierMenu menu = new SupplierMenu(bar, supplier);
-                menu.showMenu();
-            }
-            case 5 -> {
-                ClientMenu menu = new ClientMenu(bar, clients);
-                menu.showMenu();
-            }
+            case 1 -> new PatronMenu(bar, clients).showMenu();
+            case 2 -> new BarmanMenu(bar, clients).showMenu();
+            case 3 -> new ServerMenu(bar, clients).showMenu();
+            case 4 -> new SupplierMenu(bar, supplier).showMenu();
+            case 5 -> new ClientMenu(bar, clients).showMenu();
         }
     }
 
@@ -117,8 +108,7 @@ public class MainApp {
         try {
             int input = Integer.parseInt(scanner.nextLine());
             if (input >= min && input <= max) return input;
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) {}
         System.out.print("Invalid! Try again: ");
         return getIntInput(min, max);
     }

@@ -1,74 +1,51 @@
-
 package tournament;
 
-/**
- *
- * @author NAOMI
- */
 import game.GamePlayer;
+import pubmanagement.Human;
 import utils.SkillLevel;
 
 /**
- * TOURNAMENTPLAYER CLASS - Represents a player in tournament
+ * TournamentPlayer wraps BOTH:
+ * - The GamePlayer used for Belote
+ * - The real Human (Client or Server) used in the bar
  */
 public class TournamentPlayer {
+
     private GamePlayer gamePlayer;
-    private SkillLevel skillLevel;
+    private Human human;   // <-- NEW
+    private SkillLevel level;
     private int matchesPlayed;
     private int matchesWon;
 
-    /**
-     * Constructor
-     */
-    public TournamentPlayer(GamePlayer gamePlayer, SkillLevel skillLevel) {
-        this.gamePlayer = gamePlayer;
-        this.skillLevel = skillLevel;
+    public TournamentPlayer(GamePlayer gp, Human human, SkillLevel level) {
+        this.gamePlayer = gp;
+        this.human = human;
+        this.level = level;
         this.matchesPlayed = 0;
         this.matchesWon = 0;
     }
 
-    /**
-     * Get game player
-     */
     public GamePlayer getGamePlayer() {
         return gamePlayer;
     }
 
-    /**
-     * Get skill level
-     */
+    public Human getHuman() {      // <-- NEW
+        return human;
+    }
+
+    public String getName() {
+        return gamePlayer.getName();
+    }
+
     public SkillLevel getSkillLevel() {
-        return skillLevel;
+        return level;
     }
 
-    /**
-     * Record match played
-     */
-    public void recordMatchPlayed() {
-        matchesPlayed++;
-    }
-
-    /**
-     * Record match won
-     */
-    public void recordMatchWon() {
-        matchesWon++;
-    }
-
-    public int getMatchesPlayed() {
-        return matchesPlayed;
-    }
-
-    public int getMatchesWon() {
-        return matchesWon;
-    }
-
-    public String getPlayerName() {
-        return gamePlayer.getPlayerName();
-    }
+    public void recordPlayed() { matchesPlayed++; }
+    public void recordWin() { matchesWon++; }
 
     @Override
     public String toString() {
-        return getPlayerName() + " [" + skillLevel + ", Matches: " + matchesWon + "/" + matchesPlayed + "]";
+        return getName() + " (" + level + ")";
     }
 }

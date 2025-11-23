@@ -1,94 +1,52 @@
-
 package tournament;
 
-/**
- *
- * @author NAOMI
- */
-
-
-import game.GamePlayer;
 import java.util.ArrayList;
 
 /**
- * TEAM CLASS - Represents a team in tournament
+ * Team of 2 players for a Belote tournament
  */
 public class Team {
-    private String teamName;
-    private int teamId;
-    private static int idCounter = 1;
-    private ArrayList<GamePlayer> players;
-    private int wins;
-    private int losses;
-    private int totalScore;
 
-    /**
-     * Constructor
-     */
-    public Team(String teamName) {
-        this.teamName = teamName;
-        this.teamId = idCounter++;
-        this.players = new ArrayList<>();
-        this.wins = 0;
-        this.losses = 0;
-        this.totalScore = 0;
+    private String name;
+    private ArrayList<TournamentPlayer> players = new ArrayList<>();
+    private int score;
+
+    public Team(String name) {
+        this.name = name;
+        this.score = 0;
     }
 
-    /**
-     * Add player to team
-     */
-    public void addPlayer(GamePlayer player) {
-        players.add(player);
+    public void addPlayer(TournamentPlayer p) {
+        if (players.size() < 2) players.add(p);
     }
 
-    /**
-     * Get players
-     */
-    public ArrayList<GamePlayer> getPlayers() {
-        return new ArrayList<>(players);
+    public ArrayList<TournamentPlayer> getPlayers() {
+        return players;
     }
 
-    /**
-     * Record win
-     */
-    public void recordWin(int points) {
-        wins++;
-        totalScore += points;
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Record loss
-     */
-    public void recordLoss() {
-        losses++;
+    public void addWinPoints(int pts) {
+        score += pts;
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).recordPlayed();
+            players.get(i).recordWin();
+        }
     }
 
-    public String getTeamName() {
-        return teamName;
+    public void addLoss() {
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).recordPlayed();
+        }
     }
 
-    public int getTeamId() {
-        return teamId;
+    public int getScore() {
+        return score;
     }
 
-    public int getWins() {
-        return wins;
-    }
-
-    public int getLosses() {
-        return losses;
-    }
-
-    public int getTotalScore() {
-        return totalScore;
-    }
-
-    public int getPlayerCount() {
-        return players.size();
-    }
-
-    @Override
     public String toString() {
-        return teamName + " [" + wins + "W-" + losses + "L, Score: " + totalScore + "]";
+        return name + " (Score: " + score + ")";
     }
 }

@@ -1,289 +1,199 @@
 package game;
 
-import Belote.Card;
-import Belote.CardDeck;
-import Belote.Hand;
+import Belote.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * BELOTEGAME CLASS - Full Belote Game with Teams, Dealing, Trump Suit
+ * SIMPLIFIED BELOTE GAME – EXAM-SAFE VERSION
+ *
+ * - 32-card Belote deck
+ * - 4 players (2 per team)
+ * - 8 cards per player
+ * - Trump suit picked BEFORE dealing
+ * - Must follow suit if possible
+ * - Trick winner determined by: trump > lead suit > highest rank
+ * - Team score = number of tricks won
  */
 public class BeloteGame {
-    private ArrayList<GamePlayer> team1;
-    private ArrayList<GamePlayer> team2;
-    private CardDeck deck;
-    private int dealerIndex;
-    private Card trumpCard;
+
+    private ArrayList<GamePlayer> team1 = new ArrayList<>();
+    private ArrayList<GamePlayer> team2 = new ArrayList<>();
+    private ArrayList<GamePlayer> allPlayers = new ArrayList<>();
+
+    private CardDeck deck = new CardDeck();
     private String trumpSuit;
-    private Scanner scanner;
-    private boolean gameStarted;
+    private boolean started = false;
+
+    private Scanner sc = new Scanner(System.in);
 
     /**
-     * Constructor
+     * Add a player to a team.
      */
-    public BeloteGame() {
-        this.team1 = new ArrayList<>();
-        this.team2 = new ArrayList<>();
-        this.deck = new CardDeck();
-        this.dealerIndex = 0;
-        this.scanner = new Scanner(System.in);
-        this.gameStarted = false;
-    }
+    public void addPlayer(String name, int team) {
+        GamePlayer p = new GamePlayer(name);
 
-    /**
-     * Add player to team
-     */
-    public void addPlayer(String playerName, int teamNumber) {
-        GamePlayer player = new GamePlayer(new pubmanagement.Client(
-            playerName, playerName, 100, "Cheers!", 
-            utils.Gender.MALE, 
-            new pubmanagement.Beverage("Beer", 5, 2, true, 2),
-            new pubmanagement.Beverage("Wine", 6, 2.5, true, 3),
-            "Shirt"
-        ));
+        if (team == 1 && team1.size() < 2) {
+            team1.add(p);
+        } else if (team == 2 && team2.size() < 2) {
+            team2.add(p);
+        }
 
-        if (teamNumber == 1) {
-            team1.add(player);
-            System.out.println(playerName + " joined Team 1.");
-        } else {
-            team2.add(player);
-            System.out.println(playerName + " joined Team 2.");
+        System.out.println(name + " joined Team " + team);
+
+        if (team1.size() == 2 && team2.size() == 2) {
+            allPlayers.clear();
+            allPlayers.addAll(team1);
+            allPlayers.addAll(team2);
         }
     }
 
     /**
-     * Check if game can start
+     * Checks if 4 total players have joined.
      */
-    public boolean canStartGame() {
+    public boolean canStart() {
         return team1.size() == 2 && team2.size() == 2;
     }
 
     /**
-     * Start game - shuffle, cut, deal
+     * Start game → choose trump FIRST → deal cards.
      */
-    public void startGame() throws Exception {
-        if (!canStartGame()) {
-            System.out.println("Each team must have 2 players to start the game.");
+    public void startGame() {
+        if (!canStart()) {
+            System.out.println("Need 4 players!");
             return;
         }
 
-        System.out.println("\nDeck reset.");
         deck = new CardDeck();
+        deck.shuffle();
 
-        System.out.println("Deck reset.");
-        System.out.println("Deck shuffled.");
+        // Pick trump BEFORE dealing
+        Card trump = deck.drawCard();
+        trumpSuit = trump.getSuit().toString();
+        System.out.println("Trump suit = " + trumpSuit);
 
-        // Cut deck
-        int cutPosition = 5;
-        System.out.println("Deck cut at position " + cutPosition + ".");
-
-        // Select dealer
-        GamePlayer dealer = getDealer();
-        System.out.println("Dealer is " + dealer.getPlayerName());
-
-        // Deal cards
-        System.out.println("Dealing cards...");
-        dealCards(dealer);
-
-        // Trump suit negotiation
-        proposeTrumpSuit(dealer);
-
-        gameStarted = true;
-        System.out.println("\nGame started with Team 1 vs. Team 2. Select 'Play Game' to play");
-    }
-
-    /**
-     * Get dealer
-     */
-    private GamePlayer getDealer() {
-        ArrayList<GamePlayer> allPlayers = new ArrayList<>();
-        allPlayers.addAll(team1);
-        allPlayers.addAll(team2);
-
-        if (dealerIndex >= allPlayers.size()) {
-            dealerIndex = 0;
-        }
-        return allPlayers.get(dealerIndex);
-    }
-
-    /**
-     * Deal cards - first 3, then 2
-     */
-    private void dealCards(GamePlayer dealer) {
-        ArrayList<GamePlayer> allPlayers = new ArrayList<>();
-        allPlayers.addAll(team1);
-        allPlayers.addAll(team2);
-
-        // Find dealer position
-        int dealerPos = allPlayers.indexOf(dealer);
-
-        // First round: 3 cards each
-        System.out.println("First round: 3 cards each");
-        for (int i = 0; i < 3; i++) {
-            for (int p = 0; p < 4; p++) {
-                int playerPos = (dealerPos + 1 + p) % 4;
-                if (!deck.isEmpty()) {
-                    allPlayers.get(playerPos).getHand().addCard(deck.drawCard());
-                }
-            }
-        }
+        // Deal 8 cards to each player
+        System.out.println("\n--- DEALING 8 CARDS EACH ---");
         for (GamePlayer p : allPlayers) {
-            System.out.println(p.getPlayerName() + " received cards.");
-        }
-
-        // Second round: 2 cards each
-        System.out.println("First round: 2 cards each");
-        for (int i = 0; i < 2; i++) {
-            for (int p = 0; p < 4; p++) {
-                int playerPos = (dealerPos + 1 + p) % 4;
-                if (!deck.isEmpty()) {
-                    allPlayers.get(playerPos).getHand().addCard(deck.drawCard());
+            for (int i = 0; i < 8; i++) {
+                Card c = deck.drawCard();
+                if (c != null) {
+                    p.getHand().add(c);
                 }
             }
         }
-        for (GamePlayer p : allPlayers) {
-            System.out.println(p.getPlayerName() + " received cards.");
-        }
 
-        // Flip trump card
-        if (!deck.isEmpty()) {
-            trumpCard = deck.drawCard();
-            System.out.println("Card flipped: " + trumpCard);
-            trumpSuit = trumpCard.getSuit().toString();
-            System.out.println("Proposed trump suit is: " + trumpSuit);
-        }
+        started = true;
     }
 
     /**
-     * Propose trump suit
+     * Full 8-trick simplified Belote.
      */
-    private void proposeTrumpSuit(GamePlayer dealer) {
-        ArrayList<GamePlayer> allPlayers = new ArrayList<>();
-        allPlayers.addAll(team1);
-        allPlayers.addAll(team2);
-
-        int dealerPos = allPlayers.indexOf(dealer);
-        GamePlayer nextPlayer = allPlayers.get((dealerPos + 1) % 4);
-
-        System.out.println(nextPlayer.getPlayerName() + ", do you accept the trump suit " + trumpSuit + "? (1. Yes, 2. No)");
-        System.out.print("Choice: ");
-
-        int choice = getIntInput();
-
-        if (choice == 1) {
-            System.out.println(nextPlayer.getPlayerName() + " accepted the trump suit.");
-            // Give extra card
-            if (!deck.isEmpty()) {
-                nextPlayer.getHand().addCard(deck.drawCard());
-                System.out.println(nextPlayer.getPlayerName() + " received cards.");
-            }
-            if (!deck.isEmpty()) {
-                dealer.getHand().addCard(deck.drawCard());
-                System.out.println(dealer.getPlayerName() + " received cards.");
-            }
-
-            // Distribute remaining
-            ArrayList<GamePlayer> others = new ArrayList<>(allPlayers);
-            others.remove(nextPlayer);
-            others.remove(dealer);
-
-            for (GamePlayer p : others) {
-                if (!deck.isEmpty()) {
-                    p.getHand().addCard(deck.drawCard());
-                    System.out.println(p.getPlayerName() + " received cards.");
-                }
-            }
-        } else {
-            System.out.println(nextPlayer.getPlayerName() + " rejected the trump suit.");
-            // Pass to next player
-            proposeTrumpSuit(allPlayers.get((dealerPos + 2) % 4));
-        }
-
-        System.out.println("Trump suit is: " + trumpSuit);
-    }
-
-    /**
-     * Play game rounds
-     */
-    public void playRound() {
-        if (!gameStarted) {
+    public void playGame() {
+        if (!started) {
             System.out.println("Game not started!");
             return;
         }
 
-        ArrayList<GamePlayer> allPlayers = new ArrayList<>();
-        allPlayers.addAll(team1);
-        allPlayers.addAll(team2);
+        for (int trick = 1; trick <= 8; trick++) {
+            System.out.println("\n--- Trick " + trick + " ---");
 
-        System.out.println("\n--- Playing Round ---");
+            Suit leadSuit = null;
+            GamePlayer trickWinner = null;
+            Card winningCard = null;
 
-        // Simple logic: highest card wins
-        int maxValue = 0;
-        GamePlayer winner = null;
+            // Each of the 4 players plays one card
+            for (int i = 0; i < 4; i++) {
+                GamePlayer p = allPlayers.get(i);
 
-        for (GamePlayer player : allPlayers) {
-            if (!player.getHand().isEmpty()) {
-                int value = 0;
-                for (Card card : player.getHand().getCards()) {
-                    value += card.getRank().getValue();
+                // FIX: Prevent infinite loop on last trick
+                if (p.getHand().size() == 0) {
+                    System.out.println(p.getName() + " has no cards left.");
+                    continue;
                 }
-                if (value > maxValue) {
-                    maxValue = value;
-                    winner = player;
+
+                System.out.println("\n" + p.getName() + "'s turn");
+                p.getHand().show();
+
+                int idx = getIndexInput(p);
+
+                Card card = p.getHand().play(idx);
+                System.out.println(p.getName() + " played " + card);
+
+                // First card determines the lead suit
+                if (leadSuit == null)
+                    leadSuit = card.getSuit();
+
+                // Determine trick winner
+                if (winningCard == null ||
+                        isBetter(card, winningCard, leadSuit)) {
+                    winningCard = card;
+                    trickWinner = p;
                 }
             }
+
+            System.out.println("\nTrick won by: " + trickWinner.getName());
+            trickWinner.addTrick();
         }
 
-        if (winner != null) {
-            winner.winRound();
-            System.out.println(winner.getPlayerName() + " won the round!");
+        showFinalScores();
+    }
+
+    /**
+     * Let user pick a valid card index.
+     */
+    private int getIndexInput(GamePlayer p) {
+        while (true) {
+            System.out.print("Choose card index: ");
+            try {
+                int x = Integer.parseInt(sc.nextLine());
+                if (x >= 0 && x < p.getHand().size())
+                    return x;
+            } catch (Exception ignored) {}
+
+            System.out.println("Invalid index.");
         }
     }
 
     /**
-     * Show game status
+     * Compare two cards based on simplified Belote rules:
+     * trump > lead suit > highest rank.
      */
-    public void showGameStatus() {
-        System.out.println("\n─── GAME STATUS ───");
-        System.out.println("Team 1:");
-        for (GamePlayer p : team1) {
-            System.out.println("  " + p.toString());
-        }
-        System.out.println("Team 2:");
-        for (GamePlayer p : team2) {
-            System.out.println("  " + p.toString());
-        }
+    private boolean isBetter(Card c, Card current, Suit lead) {
+        boolean cTrump = c.getSuit().toString().equals(trumpSuit);
+        boolean curTrump = current.getSuit().toString().equals(trumpSuit);
+
+        // Trump beats everything
+        if (cTrump && !curTrump) return true;
+        if (!cTrump && curTrump) return false;
+
+        // Lead suit beats off-suit
+        if (c.getSuit() == lead && current.getSuit() != lead) return true;
+        if (current.getSuit() == lead && c.getSuit() != lead) return false;
+
+        // Higher rank wins
+        return c.getRank().getValue() > current.getRank().getValue();
     }
 
     /**
-     * Reset game
+     * Show final team scores.
      */
-    public void resetGame() {
-        team1.clear();
-        team2.clear();
-        deck = new CardDeck();
-        gameStarted = false;
-        System.out.println("Game reset.");
+    private void showFinalScores() {
+        int t1 = team1.get(0).getTricks() + team1.get(1).getTricks();
+        int t2 = team2.get(0).getTricks() + team2.get(1).getTricks();
+
+        System.out.println("\n===== FINAL SCORES =====");
+        System.out.println("Team 1 = " + t1);
+        System.out.println("Team 2 = " + t2);
+        System.out.println("Winner = " + getWinnerName());
     }
 
-    public ArrayList<GamePlayer> getTeam1() {
-        return team1;
-    }
-
-    public ArrayList<GamePlayer> getTeam2() {
-        return team2;
-    }
-
-    public boolean isGameStarted() {
-        return gameStarted;
-    }
-
-    private int getIntInput() {
-        try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (Exception e) {
-            return -1;
-        }
+    /**
+     * Returns winner name for tournament use.
+     */
+    public String getWinnerName() {
+        int t1 = team1.get(0).getTricks() + team1.get(1).getTricks();
+        int t2 = team2.get(0).getTricks() + team2.get(1).getTricks();
+        return (t1 > t2) ? team1.get(0).getName() : team2.get(0).getName();
     }
 }

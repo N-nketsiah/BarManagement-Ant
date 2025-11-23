@@ -1,158 +1,142 @@
-
 package game;
 
-/**
- *
- * @author NAOMI
- */
+import pubmanagement.Bar;
+import pubmanagement.Client;
+import pubmanagement.Server;
 
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
- * BELOTE GAME MENU - Interactive menu for Belote game
+ * Belote Game Menu (Players must come from the Bar)
+ * - Prevent selecting a player twice
+ * - Shows only available players
  */
 public class BeloteGameMenu {
-    private BeloteGame game;
-    private Scanner scanner;
-    private int currentTeam;
 
-    /**
-     * Constructor
-     */
-    public BeloteGameMenu() {
-        this.game = new BeloteGame();
-        this.scanner = new Scanner(System.in);
-        this.currentTeam = 1;
+    private BeloteGame game = new BeloteGame();
+    private Scanner sc = new Scanner(System.in);
+
+    private Bar bar;
+    private int currentTeam = 1;
+    private int playerCount = 0;
+    private boolean started = false;
+
+    // NEW: track already picked players
+    private ArrayList<String> usedPlayers = new ArrayList<>();
+
+    public BeloteGameMenu(Bar bar) {
+        this.bar = bar;
     }
 
-    /**
-     * Show menu
-     */
     public void showMenu() {
-        boolean running = true;
 
-        while (running) {
-            System.out.println("\nBelote Game Menu:");
+        boolean run = true;
+
+        while (run) {
+            System.out.println("\nBelote Menu:");
             System.out.println("1. Add Player");
             System.out.println("2. Start Game");
-            System.out.println("3. Play Game");
-            System.out.println("4. Reset Game");
-            System.out.println("5. Exit");
+            System.out.println("3. Play");
+            System.out.println("4. Exit");
             System.out.print("Choose: ");
 
-            int choice = getIntInput();
+            int c = getInt();
 
-            switch (choice) {
+            switch (c) {
                 case 1 -> addPlayer();
-                case 2 -> startGame();
-                case 3 -> playGame();
-                case 4 -> game.resetGame();
-                case 5 -> running = false;
+                case 2 -> start();
+                case 3 -> play();
+                case 4 -> run = false;
             }
         }
     }
 
     /**
-     * Add player
+     * Add a player only once
      */
     private void addPlayer() {
-        System.out.print("Enter player name: ");
-        String name = scanner.nextLine();
-
-        game.addPlayer(name, currentTeam);
-
-        // Alternate teams
-        currentTeam = (currentTeam == 1) ? 2 : 1;
-    }
-
-    /**
-     * Start game
-     */
-    private void startGame() {
-        try {
-            game.startGame();
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (playerCount >= 4) {
+            System.out.println(" You already have 4 players!");
+            return;
         }
-    }
 
-    /**
-     * Play game
-     */
-    private void playGame() {
-    if (!game.isGameStarted()) {
-        System.out.println("Game not started!");
-        return;
-    }
+        List<Object> available = new ArrayList<>();
 
-    boolean playing = true;
-    while (playing) {
-        System.out.println("\n1. Play Round\n2. Show Status\n3. Back");
-        System.out.print("Choose: ");
-
-        int choice = getIntInput();
-
-        switch (choice) {
-            case 1 -> game.playRound();
-            case 2 -> game.showGameStatus();
-            case 3 -> {
-                saveGameResult();  // ADD THIS LINE
-                playing = false;
+        System.out.println("\n--- AVAILABLE CLIENTS ---");
+        for (Client c : bar.getClients()) {
+            if (!usedPlayers.contains(c.getFirstName())) {
+                available.add(c);
+                System.out.println(available.size() + ". " + c.getFirstName());
             }
         }
-    }
-}
-    /**
- * Save game result to file
- */
-    private void saveGameResult() {
-    try {
-        Files.createDirectories(Paths.get("data"));
-    } catch (IOException e) {
-        System.out.println("Error creating data directory: " + e.getMessage());
-    }
 
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/games.csv", true))) {
-        String team1List = game.getTeam1().stream()
-            .map(p -> p.getPlayerName())
-            .reduce((a, b) -> a + "|" + b)
-            .orElse("Unknown");
-        String team2List = game.getTeam2().stream()
-            .map(p -> p.getPlayerName())
-            .reduce((a, b) -> a + "|" + b)
-            .orElse("Unknown");
-
-        int score1 = game.getTeam1().stream()
-            .mapToInt(p -> p.getScore())
-            .sum();
-        int score2 = game.getTeam2().stream()
-            .mapToInt(p -> p.getScore())
-            .sum();
-
-        String winner = score1 > score2 ? team1List : team2List;
-
-        String line = String.format("%s,%s,%s,%d,%d,%s",
-            team1List, team2List, winner, score1, score2, new java.util.Date());
-        
-        writer.write(line);
-        writer.newLine();
-        System.out.println("Game result saved to file");
-    } catch (IOException e) {
-        System.out.println("Error saving game: " + e.getMessage());
-    }
-}
-
-    private int getIntInput() {
-        try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (Exception e) {
-            return -1;
+        System.out.println("\n--- AVAILABLE SERVERS ---");
+        for (Server s : bar.getServers()) {
+            if (!usedPlayers.contains(s.getFirstName())) {
+                available.add(s);
+                System.out.println(available.size() + ". " + s.getFirstName());
+            }
         }
+
+        if (available.isEmpty()) {
+            System.out.println(" No players available. Add more clients or servers first!");
+            return;
+        }
+
+        System.out.print("Choose player: ");
+        int choice = getInt();
+
+        if (choice < 1 || choice > available.size()) {
+            System.out.println(" Invalid choice.");
+            return;
+        }
+
+        Object selected = available.get(choice - 1);
+        String name;
+
+        if (selected instanceof Client c) {
+            name = c.getFirstName();
+        } else {
+            Server s = (Server) selected;
+            name = s.getFirstName();
+        }
+
+        // Mark player as used
+        usedPlayers.add(name);
+
+        game.addPlayer(name, currentTeam);
+        currentTeam = (currentTeam == 1) ? 2 : 1;
+        playerCount++;
+    }
+
+    private void start() {
+        if (playerCount < 4) {
+            System.out.println(" Need 4 players before starting.");
+            return;
+        }
+
+        if (started) {
+            System.out.println(" Game already started.");
+            return;
+        }
+
+        game.startGame();
+        started = true;
+    }
+
+    private void play() {
+        if (!started) {
+            System.out.println(" You must start the game first!");
+            return;
+        }
+
+        game.playGame();
+    }
+
+    private int getInt() {
+        try { return Integer.parseInt(sc.nextLine()); }
+        catch (Exception e) { return -1; }
     }
 }

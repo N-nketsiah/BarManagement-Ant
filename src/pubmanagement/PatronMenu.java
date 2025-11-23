@@ -66,20 +66,20 @@ public class PatronMenu {
         if (client != null) {
             bar.getPatron().banClient(client, bar);
             clients.remove(client);
-            System.out.println("✓ " + client.getFirstName() + " has been banned!");
+            System.out.println(" " + client.getFirstName() + " has been banned!");
         }
     }
 
     private void collectCash() {
         bar.getPatron().collectCashFromRegister(bar.getBarman(), 50);
-        System.out.println("✓ Cash collected!");
+        System.out.println(" Cash collected!");
     }
 
     private void stopServing() {
         Client client = selectClient();
         if (client != null) {
             bar.getPatron().stopServing(client);
-            System.out.println("✓ Stopped serving " + client.getFirstName());
+            System.out.println(" Stopped serving " + client.getFirstName());
         }
     }
 
@@ -89,7 +89,7 @@ public class PatronMenu {
             Beverage beverage = selectBeverage();
             if (beverage != null) {
                 bar.getPatron().offerDrink(client, beverage);
-                System.out.println("✓ Offered " + beverage.getName() + " to " + client.getFirstName());
+                System.out.println(" Offered " + beverage.getName() + " to " + client.getFirstName());
             }
         }
     }

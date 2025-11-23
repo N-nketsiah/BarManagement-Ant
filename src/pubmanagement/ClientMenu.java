@@ -8,14 +8,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Scanner;
 import utils.Gender;
 
-/**
- * CLIENT MENU - Interactive menu for Client role
- */
 public class ClientMenu {
     private Scanner scanner;
     private Bar bar;
@@ -29,9 +25,6 @@ public class ClientMenu {
         createDataDirectory();
     }
 
-    /**
-     * Create data directory if it doesn't exist
-     */
     private void createDataDirectory() {
         try {
             Files.createDirectories(Paths.get("data"));
@@ -57,7 +50,7 @@ public class ClientMenu {
                 clients.add(chosenClient);
                 bar.addClient(chosenClient);
                 saveClientToFile(chosenClient);
-                System.out.println("✓ Client saved!");
+                System.out.println(" Client saved!");
             } else {
                 System.out.println("Failed to create a new client.");
                 return;
@@ -69,9 +62,8 @@ public class ClientMenu {
         clientActions(chosenClient);
     }
 
-    /**
-     * Save client to CSV file
-     */
+    // ---------------------------- FILE HANDLING -------------------------------
+
     private void saveClientToFile(Client client) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CLIENTS_FILE, true))) {
             String line = String.format("%s,%s,%f,%s,%s",
@@ -83,15 +75,12 @@ public class ClientMenu {
             );
             writer.write(line);
             writer.newLine();
-            System.out.println("✓ Client saved to file");
+            System.out.println(" Client saved to file");
         } catch (IOException e) {
             System.out.println("Error saving client: " + e.getMessage());
         }
     }
 
-    /**
-     * Load clients from CSV file
-     */
     public static List<Client> loadClientsFromFile() {
         List<Client> loadedClients = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("data/clients.csv"))) {
@@ -120,6 +109,8 @@ public class ClientMenu {
         return loadedClients;
     }
 
+    // ---------------------------- CLIENT ACTIONS -----------------------------
+
     private void clientActions(Client client) {
         boolean inMenu = true;
 
@@ -129,10 +120,11 @@ public class ClientMenu {
             System.out.println("2. Order a drink");
             System.out.println("3. Pay for a drink");
             System.out.println("4. Change gender");
-            System.out.println("5. Quit to main menu");
+            System.out.println("5. View Table Assignments");   // <-- NEW OPTION
+            System.out.println("6. Quit to main menu");
             System.out.print("Choose: ");
 
-            int action = getIntInput(1, 5);
+            int action = getIntInput(1, 6);
 
             switch (action) {
                 case 1 -> viewProfile(client);
@@ -148,7 +140,10 @@ public class ClientMenu {
                     client.pay(amount);
                 }
                 case 4 -> changeGender(client);
-                case 5 -> inMenu = false;
+
+                case 5 -> bar.showTables();       
+
+                case 6 -> inMenu = false;
             }
         }
     }
@@ -157,9 +152,9 @@ public class ClientMenu {
         System.out.println("\n--- Client Profile ---");
         System.out.println("Name: " + client.getFirstName() + " " + client.getNickname());
         System.out.println("Gender: " + client.getGender());
-        System.out.println("Balance: €" + client.getWallet());
-        System.out.println("Favorite Drink: " + (client.getFavoriteDrink() != null ? client.getFavoriteDrink().getName() : "None"));
-        System.out.println("Backup Drink: " + (client.getBackupDrink() != null ? client.getBackupDrink().getName() : "None"));
+        System.out.println("Balance: $" + client.getWallet());
+        System.out.println("Favorite Drink: " + client.getFavoriteDrink().getName());
+        System.out.println("Backup Drink: " + client.getBackupDrink().getName());
         System.out.println("Significant Shout: " + client.getSignificantShout());
         System.out.println("Clothing/Jewelry: " + client.getClothingOrJewelry());
         System.out.println("----------------------\n");
@@ -180,7 +175,7 @@ public class ClientMenu {
             newClothing = (newGender == Gender.MALE) ? "T-shirt" : "Necklace";
 
         client.changeGender(newGender, newClothing);
-        System.out.println("✓ Gender changed!");
+        System.out.println(" Gender changed!");
     }
 
     private Client createNewClient() {
@@ -202,7 +197,6 @@ public class ClientMenu {
         System.out.println("Choose gender:");
         System.out.println("1. Male");
         System.out.println("2. Female");
-        System.out.print("Choose: ");
         int genderChoice = getIntInput(1, 2);
         Gender gender = (genderChoice == 1) ? Gender.MALE : Gender.FEMALE;
 
@@ -222,7 +216,8 @@ public class ClientMenu {
             return null;
         }
 
-        return new Client(firstName, nickname, wallet, shout, gender, favoriteDrink, backupDrink, clothingOrJewelry);
+        return new Client(firstName, nickname, wallet, shout, gender,
+                favoriteDrink, backupDrink, clothingOrJewelry);
     }
 
     private Beverage selectBeverage() {
@@ -247,8 +242,7 @@ public class ClientMenu {
         try {
             int input = Integer.parseInt(scanner.nextLine());
             if (input >= min && input <= max) return input;
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) {}
         System.out.print("Invalid! Try again: ");
         return getIntInput(min, max);
     }

@@ -154,7 +154,7 @@ public class Client extends Human {
     public void pay(double amount) {
         if (getWallet() >= amount) {
             setWallet(getWallet() - amount);
-            speak("I paid " + amount + " euros.");
+            speak("I paid " + amount + " dollars.");
             saveClientData();
         } else {
             speak("I don't have enough money to pay for this.");
@@ -174,7 +174,7 @@ public class Client extends Human {
      * Save client data
      */
     public void saveClientData() {
-        // Will implement file management later
+        //
     }
 
     @Override

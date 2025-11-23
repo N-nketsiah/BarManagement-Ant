@@ -1,30 +1,22 @@
-
 package Belote;
 
-/**
- *
- * @author NAOMI
- */
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * CARDDECK CLASS - Represents a full deck of 52 playing cards
+ * CARDDECK CLASS – 32-card Belote deck
  */
 public class CardDeck {
     private ArrayList<Card> cards;
-    
-    /**
-     * Constructor - Create and shuffle a full deck
-     */
+
     public CardDeck() {
-        this.cards = new ArrayList<>();
+        cards = new ArrayList<>();
         createDeck();
         shuffle();
     }
-    
+
     /**
-     * Create all 52 cards (4 suits × 13 ranks)
+     * Create the 32-card Belote deck (4 suits × 8 ranks)
      */
     private void createDeck() {
         for (Suit suit : Suit.values()) {
@@ -33,44 +25,24 @@ public class CardDeck {
             }
         }
     }
-    
-    /**
-     * Shuffle the deck randomly
-     */
+
     public void shuffle() {
         Collections.shuffle(cards);
     }
-    
-    /**
-     * Draw a card from the deck
-     * @return the card drawn, or null if deck is empty
-     */
+
     public Card drawCard() {
-        if (cards.isEmpty()) {
-            return null;
-        }
+        if (cards.isEmpty()) return null;
         return cards.remove(0);
     }
-    
-    /**
-     * Check if deck is empty
-     * @return true if no cards left
-     */
+
     public boolean isEmpty() {
         return cards.isEmpty();
     }
-    
-    /**
-     * Get number of remaining cards
-     * @return number of cards left in deck
-     */
+
     public int getRemainingCards() {
         return cards.size();
     }
-    
-    /**
-     * Print deck info
-     */
+
     @Override
     public String toString() {
         return "CardDeck [" + cards.size() + " cards remaining]";

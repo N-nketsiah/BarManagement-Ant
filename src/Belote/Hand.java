@@ -1,85 +1,51 @@
-
 package Belote;
-
-/**
- *
- * @author NAOMI
- */
 
 import java.util.ArrayList;
 
 /**
- * HAND CLASS - Represents cards held by a player
+ * HAND CLASS - Stores cards for each player.
+ * Required by simplified Belote game.
  */
 public class Hand {
-    private ArrayList<Card> cards;
-    private String playerName;
+
+    private ArrayList<Card> cards = new ArrayList<>();
 
     /**
-     * Constructor
+     * Add a card to the hand.
      */
-    public Hand(String playerName) {
-        this.playerName = playerName;
-        this.cards = new ArrayList<>();
+    public void add(Card c) {
+        cards.add(c);
     }
 
     /**
-     * Add card
+     * Play (remove) a card at given index.
      */
-    public void addCard(Card card) {
-        cards.add(card);
-    }
-
-    /**
-     * Play card at index
-     */
-    public Card playCard(int index) {
-        if (index < 0 || index >= cards.size()) {
-            return null;
-        }
+    public Card play(int index) {
+        if (index < 0 || index >= cards.size()) return null;
         return cards.remove(index);
     }
 
     /**
-     * Get card at index
+     * Get number of cards.
      */
-    public Card getCard(int index) {
-        if (index < 0 || index >= cards.size()) {
-            return null;
-        }
-        return cards.get(index);
-    }
-
-    /**
-     * Get card count
-     */
-    public int getCardCount() {
+    public int size() {
         return cards.size();
     }
 
     /**
-     * Check if empty
-     */
-    public boolean isEmpty() {
-        return cards.isEmpty();
-    }
-
-    /**
-     * Get all cards
+     * Get the whole list of cards.
      */
     public ArrayList<Card> getCards() {
-        return new ArrayList<>(cards);
+        return cards;
     }
 
     /**
-     * Clear hand
+     * Show cards with index numbers.
      */
-    public void clear() {
-        cards.clear();
-    }
-
-    @Override
-    public String toString() {
-        return playerName + "'s hand: " + cards.size() + " cards";
+    public void show() {
+        System.out.println("Your cards:");
+        for (int i = 0; i < cards.size(); i++) {
+            System.out.println(i + " - " + cards.get(i));
+        }
     }
 }
